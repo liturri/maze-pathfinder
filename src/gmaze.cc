@@ -2,21 +2,22 @@
 #include "AStar.hxx"
 #include "maze.hxx"
 #include <FL/Fl.H>
-#include <FL/Fl_Window.H>
+#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/fl_draw.H>
 #include <iostream>
 #include <iomanip>
 #include <cassert>
+#include <thread>
 
 class boxx : public Fl_Box
 {
 public:
-   boxx(const mapType &_map, const AStar::CoordinateList &_path) : Fl_Box(0, 0, 800, 800), map(_map), path(_path), sizeX(10), sizeY(10) {}
+   boxx(const mapType &_map, AStar::Generator &_generator, int _sizeX, int _sizeY) : Fl_Box(0, 0, 800, 800), map(_map), generator(_generator), sizeX(_sizeX), sizeY(_sizeY) {}
 
    void draw()
    {
-      fl_rect(0, 0, (map.size() + 1) * sizeX, (map[0].size() + 1) * sizeY);
+      auto path = generator.getPath();
       for (const auto &coordinate : path)
       {
          if (coordinate.x > (int)map.size() ||
@@ -24,20 +25,24 @@ public:
             continue;
          map[coordinate.x][coordinate.y] = '$';
       }
-      for (size_t locX = 0; locX < map.size(); locX++)
+      for (size_t locY = 0; locY < map[0].size(); locY++)
       {
-         for (size_t locY = 0; locY < map[0].size(); locY++)
+         for (size_t locX = 0; locX < map.size(); locX++)
          {
             char c = map[locX][locY];
+
             switch (c)
             {
             case '*':
                fl_rectf(locX * sizeX, locY * sizeY, sizeX + 1, sizeY + 1, FL_BLUE);
                break;
             case '$':
+               map[locX][locY] = ' ';
                fl_rectf(locX * sizeX + 2, locY * sizeY + 2, sizeX - 1, sizeY - 1, FL_YELLOW);
+               break;
                // fl_circle(locX * sizeX + (sizeX/2), locY * sizeY + (sizeY/2), sizeX/2);
             case ' ':
+               fl_rectf(locX * sizeX, locY * sizeY, sizeX + 1, sizeY + 1, FL_WHITE);
                break;
             default:
                fl_rectf(locX * sizeX, locY * sizeY, sizeX + 1, sizeY + 1, FL_RED);
@@ -50,9 +55,55 @@ public:
 
 private:
    mapType map;
-   AStar::CoordinateList path;
+   AStar::Generator &generator;
    int sizeX;
    int sizeY;
+};
+
+class WorkThread
+{
+   class refresh
+   {
+   public:
+      refresh(AStar::Generator &_generator, Fl_Double_Window *_widget) : generator(_generator), widget(_widget){};
+      void operator()()
+      {
+         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+         std::cout << "\033[2J";
+         std::cout.flush();
+         generator.showMaze();
+         Fl::lock();
+         widget->redraw();
+         Fl::check();
+         Fl::unlock();
+         Fl::awake();
+      };
+
+   protected:
+      AStar::Generator &generator;
+      Fl_Double_Window *widget;
+   };
+
+public:
+   WorkThread(AStar::Generator &_generator, Fl_Double_Window *_widget) : generator(_generator), widget(_widget){};
+   void operator()(void)
+   {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      std::cout << "Work start." << std::endl;
+      auto worldSize = generator.getWorldSize();
+      refresh fun(generator, widget);
+      generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1}, fun);
+      std::cout << "Work end." << std::endl;
+      Fl::lock();
+      widget->redraw();
+      Fl::check();
+      Fl::unlock();
+      Fl::awake();
+   }
+
+protected:
+   AStar::Generator &generator;
+   Fl_Double_Window *widget;
 };
 
 int main(int argc, char **argv)
@@ -60,8 +111,8 @@ int main(int argc, char **argv)
    AStar::Generator generator;
    Solution s;
    srand(3);
-   int lines = 140;
-   int columns = 90;
+   int lines = 20;
+   int columns = 10;
 
    mapType map{(std::size_t)lines, std::vector<char>((std::size_t)columns, '\0')};
    s.maze(map);
@@ -89,7 +140,6 @@ int main(int argc, char **argv)
       std::cout << std::endl;
    };
    // generator.setDiagonalMovement(true);
-   auto worldSize = generator.getWorldSize();
    map[0][0] = ' ';
    map[lines - 1][columns - 1] = ' ';
    for (int l = 0; l < lines; l++)
@@ -99,24 +149,23 @@ int main(int argc, char **argv)
          if (map[l][c] == '*')
             generator.addCollision({l, c});
       }
-      // generator.addCollision({rand() % worldSize.x, rand() % worldSize.y});
    }
 
-   Benchmark b;
-   generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1});
-   auto path = generator.getPath();
-   std::cout << "Size: " << worldSize.x << 'x' << worldSize.y << "  Lenght: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;
+   // Benchmark b;
+   // generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1});
+   // auto path = generator.getPath();
+   // std::cout << "Size: " << worldSize.x << 'x' << worldSize.y << "  Lenght: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;
+   Fl_Double_Window *window = new Fl_Double_Window(lines * 20 + 1, columns * 20 + 1);
+   /* auto *box =  */ new boxx(map, generator, 20, 20);
 
-   Fl_Window *window = new Fl_Window(lines * 10 + 1, columns * 10 + 1);
-   /* auto *box = */ new boxx(map, path);
+   window->show();
 
-   // Fl_Box *box = new Fl_Rect(20, 40, 300, 100, "Hello, World!");
-   // box->box(FL_UP_BOX);
-   // box->labelfont(FL_BOLD + FL_ITALIC);
-   // box->labelsize(36);
-   // box->labeltype(FL_SHADOW_LABEL);
-   // window->end();
-   // window->resizable(window);
-   window->show(argc, argv);
-   return Fl::run();
+   WorkThread workThread(generator, window);
+
+   std::thread th(workThread);
+   Fl::run();
+
+   th.detach();
+
+   return 0;
 }

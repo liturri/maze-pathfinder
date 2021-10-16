@@ -6,7 +6,6 @@
 #include <cmath>
 #include <cassert>
 
-
 using namespace std::placeholders;
 
 bool AStar::Vec2i::operator==(const Vec2i &coordinates_)
@@ -14,7 +13,7 @@ bool AStar::Vec2i::operator==(const Vec2i &coordinates_)
    return (x == coordinates_.x && y == coordinates_.y);
 }
 
-AStar::Vec2i operator+(const AStar::Vec2i &left_, const AStar::Vec2i &right_)
+AStar::Vec2i AStar::operator+(const AStar::Vec2i &left_, const AStar::Vec2i &right_)
 {
    return {left_.x + right_.x, left_.y + right_.y};
 }
@@ -74,89 +73,6 @@ void AStar::Generator::clearCollisions()
    walls.clear();
 }
 
-void AStar::Generator::findPath(Vec2i source_, Vec2i target_)
-{
-   Node *current = nullptr;
-   NodeSet openSet, closedSet;
-   // openSet.reserve(100);
-   // closedSet.reserve(100);
-   openSet.push_back(new Node(source_));
-
-   while (!openSet.empty())
-   {
-      auto current_it = openSet.begin();
-      current = *current_it;
-
-      for (auto it = openSet.begin(); it != openSet.end(); it++)
-      {
-         auto node = *it;
-         if (node->getScore() <= current->getScore())
-         {
-            current = node;
-            current_it = it;
-         }
-      }
-
-      if (current->coordinates == target_)
-      {
-         break;
-      }
-
-      closedSet.push_back(current);
-      openSet.erase(current_it);
-
-      for (uint i = 0; i < directions; ++i)
-      {
-         Vec2i newCoordinates(current->coordinates + direction[i]);
-         if (detectCollision(newCoordinates) ||
-             findNodeOnList(closedSet, newCoordinates))
-         {
-            continue;
-         }
-
-         uint totalCost = current->G + ((i < 4) ? 10 : 14);
-
-         Node *successor = findNodeOnList(openSet, newCoordinates);
-         if (successor == nullptr)
-         {
-            successor = new Node(newCoordinates, current);
-            successor->G = totalCost;
-            successor->H = heuristic(successor->coordinates, target_);
-            openSet.push_back(successor);
-         }
-         else if (totalCost < successor->G)
-         {
-            successor->parent = current;
-            successor->G = totalCost;
-         }
-      }
-
-      // CoordinateList path;
-      // path.clear();
-      // auto tmpCurrent = current;
-      // while (tmpCurrent != nullptr)
-      // {
-      //    path.push_back(tmpCurrent->coordinates);
-      //    tmpCurrent = tmpCurrent->parent;
-      // }
-      // std::cout << "\033[2J";
-      // std::cout.flush();
-      // showMaze();
-      // std::this_thread::sleep_for(std::chrono::milliseconds(50));
-   }
-
-   auto tmpCurrent = current;
-   path.clear();
-   while (tmpCurrent != nullptr)
-   {
-      path.push_back(tmpCurrent->coordinates);
-      tmpCurrent = tmpCurrent->parent;
-   }
-   releaseNodes(openSet);
-   releaseNodes(closedSet);
-   // return path;
-}
-
 AStar::Node *AStar::Generator::findNodeOnList(NodeSet &nodes_, Vec2i coordinates_)
 {
    for (const auto &node : nodes_)
@@ -202,19 +118,19 @@ void AStar::Generator::showMaze()
       map[coordinate.x][coordinate.y] = 2;
    }
 
-   std::cout << '+' << std::string(worldSize.y * 2, '-') << "+\n";
-   for (const auto &row : map)
+   std::cout << '+' << std::string(worldSize.x * 2, '-') << "+\n";
+   for (size_t locY = 0; locY < map[0].size(); locY++)
    {
       std::cout << '|';
-      for (const auto &col : row)
+      for (size_t locX = 0; locX < map.size(); locX++)
       {
-         char c = col == 0 ? ' ' : col == 1 ? '#'
-                                            : '.';
+         char c = map[locX][locY];
+         c= (c == 0) ? ' ' : (c == 1) ? '#' : '.';
          std::cout << c << c;
       }
       std::cout << "|\n";
    }
-   std::cout << '+' << std::string(worldSize.y * 2, '-') << '+' << std::endl;
+   std::cout << '+' << std::string(worldSize.x * 2, '-') << '+' << std::endl;
 }
 
 AStar::Vec2i AStar::Heuristic::getDelta(Vec2i source_, Vec2i target_)

@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
    }
    {
       Benchmark b;
-      generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1});
+      generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1}, [](){ });
       auto path = generator.getPath();
       generator.showMaze();
       std::cout << "Size: " << worldSize.x << 'x' << worldSize.y << "  Lenght: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;

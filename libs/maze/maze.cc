@@ -17,17 +17,17 @@ void Solution::maze(mapType &map)
 
 void Solution::showMaze(mapType &map)
 {
-   std::cout << "+" << std::string(map[0].size(), '-') << "+" << std::endl;
-   for (std::size_t i = 0; i < map.size(); ++i)
+   std::cout << "+" << std::string(map.size(), '-') << "+" << std::endl;
+   for (size_t locY = 0; locY < map[0].size(); locY++)
    {
-      std::cout << "|";
-      for (std::size_t j = 0; j < map[0].size(); ++j)
+      std::cout << '|';
+      for (size_t locX = 0; locX < map.size(); locX++)
       {
-        std::cout << map[i][j];
+         std::cout << map[locX][locY];
       }
-      std::cout << "|" << std::endl;
+      std::cout << "|\n";
    }
-   std::cout << "+" << std::string(map[0].size(), '-') << "+" << std::endl;
+   std::cout << "+" << std::string(map.size(), '-') << "+" << std::endl;
 }
 
 // Use DFS
@@ -92,5 +92,3 @@ void Solution::swap(int &a, int &b)
    a = b;
    b = c;
 }
-
-

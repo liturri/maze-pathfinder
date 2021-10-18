@@ -8,16 +8,25 @@
 
 #include <vector>
 #include <functional>
-//#include <set>
+#include <unordered_set>
+
+#define USE_SET_IN_COLLITIONS true
 
 namespace AStar
 {
-
    struct Vec2i
    {
       int x, y;
 
-      bool operator==(const Vec2i &coordinates_);
+      bool operator==(const Vec2i &coordinates_) const { return (x == coordinates_.x && y == coordinates_.y); };
+   };
+
+   struct Vec2i_hash
+   {
+      size_t operator()(const Vec2i &obj) const
+      {
+         return std::hash<long>()(((long)obj.x << (sizeof(obj.x) * 8)) + obj.y);
+      }
    };
 
    Vec2i operator+(const Vec2i &left_, const Vec2i &right_);
@@ -25,6 +34,11 @@ namespace AStar
    using uint = unsigned int;
    using HeuristicFunction = std::function<uint(Vec2i, Vec2i)>;
    using CoordinateList = std::vector<Vec2i>;
+#ifdef USE_SET_IN_COLLITIONS
+   using CollitionList = std::unordered_set<Vec2i, Vec2i_hash>;
+#else
+   using CollitionList = std::vector<Vec2i>;
+#endif
 
    struct Node
    {
@@ -35,6 +49,8 @@ namespace AStar
       Node(Vec2i coord_, Node *parent_ = nullptr);
       uint getScore();
    };
+
+   bool operator==(const Node *node, const Vec2i &vec);
 
    using NodeSet = std::vector<Node *>;
 
@@ -49,21 +65,19 @@ namespace AStar
       void setWorldSize(Vec2i worldSize_);
       void setDiagonalMovement(bool enable_);
       void setHeuristic(HeuristicFunction heuristic_);
-      // void findPath(Vec2i source_, Vec2i target_);
-      template<typename T>
+      void findPath(Vec2i source_, Vec2i target_);
+      template <class T>
       void findPath(Vec2i source_, Vec2i target_, T F)
       {
          Node *current = nullptr;
          NodeSet openSet, closedSet;
-         // openSet.reserve(100);
-         // closedSet.reserve(100);
          openSet.push_back(new Node(source_));
+         int pass = 0;
 
          while (!openSet.empty())
          {
             auto current_it = openSet.begin();
             current = *current_it;
-
             for (auto it = openSet.begin(); it != openSet.end(); it++)
             {
                auto node = *it;
@@ -73,23 +87,16 @@ namespace AStar
                   current_it = it;
                }
             }
-
             if (current->coordinates == target_)
-            {
                break;
-            }
-
             closedSet.push_back(current);
             openSet.erase(current_it);
 
             for (uint i = 0; i < directions; ++i)
             {
                Vec2i newCoordinates(current->coordinates + direction[i]);
-               if (detectCollision(newCoordinates) ||
-                   findNodeOnList(closedSet, newCoordinates))
-               {
+               if (detectCollision(newCoordinates) || findNodeOnList(closedSet, newCoordinates))
                   continue;
-               }
 
                uint totalCost = current->G + ((i < 4) ? 10 : 14);
 
@@ -107,28 +114,17 @@ namespace AStar
                   successor->G = totalCost;
                }
             }
-            
-            path.clear();
-            auto tmpCurrent = current;
-            while (tmpCurrent != nullptr)
+            if ((++pass) % 1 == 0)
             {
-               path.push_back(tmpCurrent->coordinates);
-               tmpCurrent = tmpCurrent->parent;
+               path.clear();
+               auto tmpCurrent = current;
+               while (tmpCurrent != nullptr)
+               {
+                  path.push_back(tmpCurrent->coordinates);
+                  tmpCurrent = tmpCurrent->parent;
+               }
+               F();
             }
-            F();
-            
-            // CoordinateList path;
-            // path.clear();
-            // auto tmpCurrent = current;
-            // while (tmpCurrent != nullptr)
-            // {
-            //    path.push_back(tmpCurrent->coordinates);
-            //    tmpCurrent = tmpCurrent->parent;
-            // }
-            // std::cout << "\033[2J";
-            // std::cout.flush();
-            // showMaze();
-            // std::this_thread::sleep_for(std::chrono::milliseconds(50));
          }
 
          auto tmpCurrent = current;
@@ -140,7 +136,6 @@ namespace AStar
          }
          releaseNodes(openSet);
          releaseNodes(closedSet);
-         // return path;
       }
 
       CoordinateList getPath() { return path; };
@@ -148,12 +143,13 @@ namespace AStar
       void removeCollision(Vec2i coordinates_);
       void clearCollisions();
       Vec2i getWorldSize() const { return worldSize; };
-      const CoordinateList getWalls() const { return walls; };
+      const CollitionList getWalls() const { return walls; };
       void showMaze();
 
    private:
       HeuristicFunction heuristic;
-      CoordinateList direction, walls;
+      CoordinateList direction;
+      CollitionList walls;
       Vec2i worldSize;
       uint directions;
       CoordinateList path;

@@ -8,10 +8,10 @@
 
 using namespace std::placeholders;
 
-bool AStar::Vec2i::operator==(const Vec2i &coordinates_)
+bool AStar::operator==(const AStar::Node *node, const AStar::Vec2i &vec)
 {
-   return (x == coordinates_.x && y == coordinates_.y);
-}
+   return (vec == node->coordinates);
+};
 
 AStar::Vec2i AStar::operator+(const AStar::Vec2i &left_, const AStar::Vec2i &right_)
 {
@@ -56,12 +56,20 @@ void AStar::Generator::setHeuristic(HeuristicFunction heuristic_)
 void AStar::Generator::addCollision(Vec2i coordinates_)
 {
    assert(coordinates_.x < worldSize.x && coordinates_.y < worldSize.y);
+#ifdef USE_SET_IN_COLLITIONS
+   walls.insert(coordinates_);
+#else
    walls.push_back(coordinates_);
+#endif
 }
 
 void AStar::Generator::removeCollision(Vec2i coordinates_)
 {
+#ifdef USE_SET_IN_COLLITIONS
+   auto it = walls.find(coordinates_);
+#else
    auto it = std::find(walls.begin(), walls.end(), coordinates_);
+#endif
    if (it != walls.end())
    {
       walls.erase(it);
@@ -75,14 +83,10 @@ void AStar::Generator::clearCollisions()
 
 AStar::Node *AStar::Generator::findNodeOnList(NodeSet &nodes_, Vec2i coordinates_)
 {
-   for (const auto &node : nodes_)
-   {
-      if (node->coordinates == coordinates_)
-      {
-         return node;
-      }
-   }
-   return nullptr;
+   auto findResult = std::find(nodes_.begin(), nodes_.end(), coordinates_);
+   if (findResult == nodes_.end())
+      return nullptr;
+   return *findResult;
 }
 
 void AStar::Generator::releaseNodes(NodeSet &nodes_)
@@ -96,13 +100,77 @@ void AStar::Generator::releaseNodes(NodeSet &nodes_)
 
 bool AStar::Generator::detectCollision(Vec2i coordinates_)
 {
+#ifdef USE_SET_IN_COLLITIONS
+   if (coordinates_.x < 0 || coordinates_.x >= worldSize.x ||
+       coordinates_.y < 0 || coordinates_.y >= worldSize.y ||
+       walls.find(coordinates_) != walls.end())
+#else
    if (coordinates_.x < 0 || coordinates_.x >= worldSize.x ||
        coordinates_.y < 0 || coordinates_.y >= worldSize.y ||
        std::find(walls.begin(), walls.end(), coordinates_) != walls.end())
+#endif
    {
       return true;
    }
    return false;
+}
+void AStar::Generator::findPath(AStar::Vec2i source_, AStar::Vec2i target_)
+{
+   Node *current = nullptr;
+   NodeSet openSet, closedSet;
+   openSet.push_back(new Node(source_));
+
+   while (!openSet.empty())
+   {
+      auto current_it = openSet.begin();
+      current = *current_it;
+      for (auto it = openSet.begin(); it != openSet.end(); it++)
+      {
+         auto node = *it;
+         if (node->getScore() <= current->getScore())
+         {
+            current = node;
+            current_it = it;
+         }
+      }
+      if (current->coordinates == target_)
+         break;
+      closedSet.push_back(current);
+      openSet.erase(current_it);
+
+      for (uint i = 0; i < directions; ++i)
+      {
+         Vec2i newCoordinates(current->coordinates + direction[i]);
+         if (detectCollision(newCoordinates) || findNodeOnList(closedSet, newCoordinates))
+            continue;
+
+         uint totalCost = current->G + ((i < 4) ? 10 : 14);
+
+         Node *successor = findNodeOnList(openSet, newCoordinates);
+         if (successor == nullptr)
+         {
+            successor = new Node(newCoordinates, current);
+            successor->G = totalCost;
+            successor->H = heuristic(successor->coordinates, target_);
+            openSet.push_back(successor);
+         }
+         else if (totalCost < successor->G)
+         {
+            successor->parent = current;
+            successor->G = totalCost;
+         }
+      }
+   }
+
+   auto tmpCurrent = current;
+   path.clear();
+   while (tmpCurrent != nullptr)
+   {
+      path.push_back(tmpCurrent->coordinates);
+      tmpCurrent = tmpCurrent->parent;
+   }
+   releaseNodes(openSet);
+   releaseNodes(closedSet);
 }
 
 void AStar::Generator::showMaze()
@@ -125,7 +193,8 @@ void AStar::Generator::showMaze()
       for (size_t locX = 0; locX < map.size(); locX++)
       {
          char c = map[locX][locY];
-         c= (c == 0) ? ' ' : (c == 1) ? '#' : '.';
+         c = (c == 0) ? ' ' : (c == 1) ? '#'
+                                       : '.';
          std::cout << c << c;
       }
       std::cout << "|\n";

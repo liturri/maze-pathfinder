@@ -12,7 +12,8 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror")
+# set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3 -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3")
 set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g3 -Wextra -Wall")
 # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -pg")
 

@@ -38,7 +38,7 @@ public:
                break;
             case '$':
                map[locX][locY] = ' ';
-               fl_rectf(locX * sizeX + 2, locY * sizeY + 2, sizeX - 1, sizeY - 1, FL_YELLOW);
+               fl_rectf(locX * sizeX + 2, locY * sizeY + 2, sizeX - 1, sizeY - 1, FL_RED);
                break;
                // fl_circle(locX * sizeX + (sizeX/2), locY * sizeY + (sizeY/2), sizeX/2);
             case ' ':
@@ -68,10 +68,10 @@ class WorkThread
       refresh(AStar::Generator &_generator, Fl_Double_Window *_widget) : generator(_generator), widget(_widget){};
       void operator()()
       {
-         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-         std::cout << "\033[2J";
-         std::cout.flush();
-         generator.showMaze();
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         // std::cout << "\033[2J";
+         // std::cout.flush();
+         // generator.showMaze();
          Fl::lock();
          widget->redraw();
          Fl::check();
@@ -106,45 +106,37 @@ protected:
    Fl_Double_Window *widget;
 };
 
-int main(int argc, char **argv)
+void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int heuristic)
 {
    AStar::Generator generator;
    Solution s;
-   srand(3);
-   int lines = 20;
-   int columns = 10;
+   srand(seed);
+   std::string heuristicStr = "manhattan";
 
-   mapType map{(std::size_t)lines, std::vector<char>((std::size_t)columns, '\0')};
+   mapType map{(std::size_t)columns, std::vector<char>((std::size_t)lines, '\0')};
    s.maze(map);
 
-   generator.setWorldSize({lines, columns});
-   if (argc == 2)
+   generator.setWorldSize({columns, lines});
+   switch (heuristic)
    {
-      std::cout << "Heuristic: ";
-
-      switch (argv[1][0])
-      {
-      case '1':
-         std::cout << "euclidean";
-         generator.setHeuristic(AStar::Heuristic::euclidean);
-         break;
-      case '2':
-         std::cout << "octagonal";
-         generator.setHeuristic(AStar::Heuristic::octagonal);
-         break;
-      case '3':
-         std::cout << "manhattan";
-         generator.setHeuristic(AStar::Heuristic::manhattan);
-         break;
-      };
-      std::cout << std::endl;
+   case 1:
+      heuristicStr = "euclidean";
+      generator.setHeuristic(AStar::Heuristic::euclidean);
+      break;
+   case 2:
+      heuristicStr = "octagonal";
+      generator.setHeuristic(AStar::Heuristic::octagonal);
+      break;
+   case 3:
+      heuristicStr = "manhattan";
+      generator.setHeuristic(AStar::Heuristic::manhattan);
+      break;
    };
-   // generator.setDiagonalMovement(true);
    map[0][0] = ' ';
-   map[lines - 1][columns - 1] = ' ';
-   for (int l = 0; l < lines; l++)
+   map[columns - 1][lines - 1] = ' ';
+   for (int l = 0; l < columns; l++)
    {
-      for (int c = 0; c < columns; c++)
+      for (int c = 0; c < lines; c++)
       {
          if (map[l][c] == '*')
             generator.addCollision({l, c});
@@ -155,8 +147,8 @@ int main(int argc, char **argv)
    // generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1});
    // auto path = generator.getPath();
    // std::cout << "Size: " << worldSize.x << 'x' << worldSize.y << "  Lenght: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;
-   Fl_Double_Window *window = new Fl_Double_Window(lines * 20 + 1, columns * 20 + 1);
-   /* auto *box =  */ new boxx(map, generator, 20, 20);
+   Fl_Double_Window *window = new Fl_Double_Window(columns * scaleX + 1, lines * scaleY + 1);
+   /* auto *box =  */ new boxx(map, generator, scaleX, scaleY);
 
    window->show();
 
@@ -166,6 +158,18 @@ int main(int argc, char **argv)
    Fl::run();
 
    th.detach();
+}
+
+int main(int argc, char **argv)
+{
+   int seed = atoi(argv[1]);
+   int heuristic = atoi(argv[2]);
+   int scaleX = 15;
+   int scaleY = 15;
+   int columns = 1670 / scaleX;
+   int lines = 1000 / scaleY;
+
+   ResolveMaze(seed, lines, columns, scaleX, scaleY, heuristic);
 
    return 0;
 }

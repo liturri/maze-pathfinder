@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
 
+set(CMAKE_C_COMPILER "/usr/bin/clang-12")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+
 # The project name
 project(maze-pathfinder VERSION 0.1.0)
 
-#set(CMAKE_C_COMPILER "/usr/bin/clang-12")
-#set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -20,7 +21,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g3 -Wextra -Wall")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
+message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE} with ${CMAKE_CXX_COMPILER}")
 
 add_subdirectory(src)
 add_subdirectory(libs/AStar)

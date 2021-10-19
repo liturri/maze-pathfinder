@@ -9,6 +9,7 @@ else()
     target_link_libraries(pathfind PRIVATE a-star maze benchmark)
 endif()
 
+# find_package(gzip)
 find_package(FLTK CONFIG REQUIRED)
 
 add_executable(gmaze gmaze.cc)
@@ -17,3 +18,6 @@ target_link_libraries(gmaze PRIVATE maze a-star benchmark fltk)
 
 add_executable(cmaze cmaze.cc)
 target_link_libraries(cmaze PRIVATE maze)
+
+add_executable(seed_db seed_db)
+target_link_libraries(seed_db PRIVATE gzstream benchmark)

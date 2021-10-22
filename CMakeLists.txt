@@ -3,15 +3,14 @@ cmake_minimum_required(VERSION 3.0.0)
 set(CMAKE_C_COMPILER "/usr/bin/clang-12")
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
-# The project name
-project(maze-pathfinder VERSION 0.1.0)
-
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
+# The project name
+project(maze-pathfinder VERSION 0.1.0)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 # set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3 -march=native")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3")

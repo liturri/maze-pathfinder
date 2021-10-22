@@ -1,81 +1,52 @@
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <errno.h>
+// #include <string>
+// #include <fstream>
+// #include <iostream>
+// #include <sstream>
+// #include <errno.h>
 #include <gzstream.h>
-#include <vector>
+// #include <vector>
+// #include <algorithm>
 #include <benchmark.hxx>
+#include "seeds.hxx"
 
-class dataFile
-{
-private:
-   igzstream gz;
-   int seed;
-   std::string size;
-   int length;
-   float time;
-
-public:
-   int GetSeed() const { return seed; }
-   std::string GetSize() const { return size; }
-   float GetTime() const { return time; };
-   int GetLength() const { return length; };
-
-   dataFile(const char *fileName)
-   {
-      gz.open(fileName);
-      if (!gz.good())
-      {
-         std::cerr << errno << ": " << fileName << std::endl;
-      }
-   };
-   std::istream &readLine()
-   {
-      // std::string null;
-      // Heuristic: manhattan Seed: 2239643 Size: 111x66  Lenght: 218  Time: 0.0002
-      // return gz >> null >> null >> null >> seed >> null >> size >> null >> length >> null >> time;
-      return gz >> length >> seed;
-   }
-};
+// std::vector<std::string> split(const std::string &text, char delimiter)
+// {
+//    std::string tmp;
+//    std::vector<std::string> stk;
+//    std::stringstream ss(text);
+//    while (std::getline(ss, tmp, delimiter))
+//    {
+//       if (tmp.size() != 0)
+//       {
+//          stk.push_back(tmp);
+//       }
+//    }
+//    return stk;
+// }
 
 int main()
 {
    Benchmark b;
-   std::vector<std::vector<int>> seedsList{};
-   dataFile data = ("/tmp/bench.gz");
-   std::string maxCommon="";
-   int maxCommonLen=0;
-   size_t len;
-   while (data.readLine())
+   ReadData data;
+   size_t importedItems;
    {
-      len=data.GetLength();
-      if (len >= seedsList.size())
-      {
-         // std::cout << "Seed: " << data.GetSeed() << "  Len: " << data.GetLength() << "  ListSize: " << seedsList.size() << "  List Capacity: " << seedsList.capacity() << std::endl;
-         seedsList.resize(len + 1);
-      }
-      seedsList[len].push_back(data.GetSeed());
-   };
-   int cantItems=0;
-   int tmpSize;
-   for (int pos = 0; (size_t) pos < seedsList.size(); pos++)
-   {
-      tmpSize = seedsList[pos].size();
-      if (tmpSize == 0)
-         continue;
-      cantItems += tmpSize;
-      if (tmpSize > maxCommonLen)
-      {
-         maxCommonLen = tmpSize;
-         maxCommon = std::to_string(pos);
-      } else if (tmpSize == maxCommonLen)
-      {
-         maxCommon = maxCommon + ", "+ std::to_string(pos);
-      }
-      // std::cout << "Len: " << pos << " Items:" << tmpSize << std::endl;
+      auto fileFD = igzstream("/tmp/bench1.gz");
+      data.ImportBinFromFile(fileFD);
    }
-   std::cout << "Len:" << maxCommon << " Items: " << maxCommonLen << std::endl;
-   std::cout << "Cant Items: " << cantItems << std::endl;
-   std::cout << "Time elapsed: " << b.elapsed() << std::endl;
+   // {
+   //    auto fileFD = igzstream("/tmp/bench.gz");
+   //    data.ImportTextFromFile(fileFD);
+   // }
+   {
+      auto fileFD = std::ifstream("/tmp/bench3");
+      importedItems = data.ImportTextFromFile(fileFD);
+   }
+   if (importedItems > 0)
+   {
+      auto fileFD = ogzstream("/tmp/bench1.gz");
+      data.ExportBinToFile(fileFD);
+   }
+   data.ShowListStatus();
+   data.SumarizeLengths();
    return 0;
 };

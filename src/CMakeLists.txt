@@ -10,7 +10,7 @@ else()
 endif()
 
 
-find_package(FLTK CONFIG REQUIRED)
+find_package(FLTK CONFIG )
 
 add_executable(gmaze gmaze.cc)
 
@@ -19,5 +19,5 @@ target_link_libraries(gmaze PRIVATE maze a-star benchmark fltk)
 add_executable(cmaze cmaze.cc)
 target_link_libraries(cmaze PRIVATE maze)
 
-add_executable(seed_db seed_db.cc)
-target_link_libraries(seed_db PRIVATE gzstream benchmark)
+add_executable(seed_db seed_db.cc seeds.cc)
+target_link_libraries(seed_db PRIVATE gzstream benchmark ) # profiler

@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
    columns = /* atoi(std::getenv("LINES")) - 6*/ 111;
    heuristic = argc > 2 ? atoi(argv[2]) : 3;
    const auto processorsCount = std::thread::hardware_concurrency();
-   TypeSeed totalCantItems = 10000;
+   TypeSeed totalCantItems = 100000;
    TypeSeed itemsPerThread = totalCantItems / processorsCount;
    Benchmark b;
 
@@ -113,6 +113,10 @@ int main(int argc, char *argv[])
          th.join();
    }
    std::cerr << "time: " << b.elapsed() << std::endl;
+   {
+      auto fileFD = std::ifstream("/tmp/seeds.db");
+      lengthsDB.ImportTextFromFile(fileFD);
+   }
    {
       auto fileFD = std::ofstream("/tmp/seeds.db");
       lengthsDB.ExportTextToFile(fileFD);

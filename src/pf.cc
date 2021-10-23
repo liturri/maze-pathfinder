@@ -84,6 +84,7 @@ void workThread(TypeSeed from, TypeSeed to)
 
 int main(int argc, char *argv[])
 {
+   lengthsDB.DisableDebug();
    int seed = atoi(argv[2]);
    std::string seedsFileName = argv[1];
    lines = 66;
@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
       if (th.joinable())
          th.join();
    }
-   std::cerr << "time: " << b.elapsed() << std::endl;
+   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << "  time: " << b.elapsed() << std::endl;
    {
       auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);

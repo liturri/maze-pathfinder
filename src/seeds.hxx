@@ -37,6 +37,7 @@ class MazeLengthsDB
 {
 private:
     std::vector<TypeLength> listOfLengths;
+    bool printTimming = true;
 
 public:
     void ExportTextToFile(std::ostream &fileFD);
@@ -44,5 +45,6 @@ public:
 
     bool IsEmpty(TypeLength length) const { return listOfLengths.size() < (size_t)length+1 || listOfLengths[length] == -1; };
     void AddItem(TypeLength length, TypeSeed seed);
+    void DisableDebug() { printTimming = false;};
 };
 #endif

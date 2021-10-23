@@ -1,6 +1,5 @@
 #include "seeds.hxx"
 
-
 void MazeSeedsDB::SumarizeLengths()
 {
     // std::sort(seedsList.begin(), seedsList.end(), compareLengths);
@@ -22,7 +21,7 @@ void MazeSeedsDB::SumarizeLengths()
         // std::cout << seedInfo.length << " " << seedInfo.seed << std::endl;
     }
     std::cerr << "Extract seeds by length: " << b.checkpoint() << std::endl;
-    for (int cant=0,length = 0; cant < 10 && (size_t)length < seedsByLen.size(); length++)
+    for (int cant = 0, length = 0; cant < 10 && (size_t)length < seedsByLen.size(); length++)
     {
         if (seedsByLen[length] == -1)
             continue;
@@ -30,7 +29,7 @@ void MazeSeedsDB::SumarizeLengths()
         std::cout << length << ' ' << seedsByLen[length] << std::endl;
     }
     std::cout << '\n';
-    for (int cant=0,length = seedsByLen.size(); cant < 10 && length > 0 ; length--)
+    for (int cant = 0, length = seedsByLen.size(); cant < 10 && length > 0; length--)
     {
         if (seedsByLen[length] == -1)
             continue;
@@ -187,7 +186,8 @@ size_t MazeLengthsDB::ImportTextFromFile(std::istream &fileFD)
         cant++;
         listOfLengths[length] = seed;
     };
-    std::cerr << "Time: " << b.elapsed() << " Import Text items: " << cant << '\n';
+    if (printTimming)
+        std::cerr << "Time: " << b.elapsed() << " Import Text items: " << cant << '\n';
     return cant;
 }
 
@@ -201,14 +201,15 @@ void MazeLengthsDB::ExportTextToFile(std::ostream &fileFD)
             continue;
         fileFD << listOfLengths[length] << ' ' << length << '\n';
     };
-    std::cerr << "Time: " << b.elapsed() << " Export text items: " << length << '\n';
+    if (printTimming)
+        std::cerr << "Time: " << b.elapsed() << " Export text items: " << length << '\n';
 }
 
 void MazeLengthsDB::AddItem(TypeLength length, TypeSeed seed)
 {
-        if ((size_t)length + 1 >= listOfLengths.size())
-        {
-            listOfLengths.resize(length + 1, -1);
-        }
-        listOfLengths[length] = seed;
+    if ((size_t)length + 1 >= listOfLengths.size())
+    {
+        listOfLengths.resize(length + 1, -1);
+    }
+    listOfLengths[length] = seed;
 }

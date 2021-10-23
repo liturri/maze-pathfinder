@@ -67,7 +67,7 @@ TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic)
 
 void workThread(TypeSeed from, TypeSeed to)
 {
-   std::cerr << "Work: " << std::this_thread::get_id() << std::endl;
+   // std::cerr << "Work: " << std::this_thread::get_id() << std::endl;
    for (TypeSeed s = from; s < to; s++)
    {
       Benchmark b;
@@ -84,17 +84,18 @@ void workThread(TypeSeed from, TypeSeed to)
 
 int main(int argc, char *argv[])
 {
-   int seed = atoi(argv[1]);
-   lines = /*atoi(std::getenv("COLUMNS")) - 1*/ 66;
-   columns = /* atoi(std::getenv("LINES")) - 6*/ 111;
-   heuristic = argc > 2 ? atoi(argv[2]) : 3;
+   int seed = atoi(argv[2]);
+   std::string seedsFileName = argv[1];
+   lines = 66;
+   columns = 111;
+   heuristic = argc > 3 ? atoi(argv[3]) : 3;
    const auto processorsCount = std::thread::hardware_concurrency();
    TypeSeed totalCantItems = 100000;
    TypeSeed itemsPerThread = totalCantItems / processorsCount;
    Benchmark b;
 
    {
-      auto fileFD = std::ifstream("/tmp/seeds.db");
+      auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);
    }
 
@@ -114,11 +115,11 @@ int main(int argc, char *argv[])
    }
    std::cerr << "time: " << b.elapsed() << std::endl;
    {
-      auto fileFD = std::ifstream("/tmp/seeds.db");
+      auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);
    }
    {
-      auto fileFD = std::ofstream("/tmp/seeds.db");
+      auto fileFD = std::ofstream(seedsFileName);
       lengthsDB.ExportTextToFile(fileFD);
    }
 }

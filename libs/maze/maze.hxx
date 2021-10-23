@@ -1,12 +1,16 @@
 #ifndef __MAZE_HXX__
 #define __MAZE_HXX__
 #include <vector>
+#include <random>
 
 using mapType = std::vector<std::vector<char>>;
 
-class Solution
+class MazeGenerator
 {
+protected:
+   std::default_random_engine randomEngine;
 public:
+   MazeGenerator(unsigned long seed): randomEngine(seed) { };
    // Definition for singly-linked list.
    void maze(mapType &map);
    void showMaze(mapType &map);

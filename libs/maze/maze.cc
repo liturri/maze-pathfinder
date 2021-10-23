@@ -2,7 +2,7 @@
 #include "maze.hxx"
 #include <iostream>
 
-void Solution::maze(mapType &map)
+void MazeGenerator::maze(mapType &map)
 {
    // U unvisited, ' ' visited
    for (std::size_t i = 0; i < map.size(); ++i)
@@ -15,7 +15,7 @@ void Solution::maze(mapType &map)
    _maze(map, 0, 0);
 }
 
-void Solution::showMaze(mapType &map)
+void MazeGenerator::showMaze(mapType &map)
 {
    std::cout << "+" << std::string(map.size(), '-') << "+" << std::endl;
    for (size_t locY = 0; locY < map[0].size(); locY++)
@@ -31,7 +31,7 @@ void Solution::showMaze(mapType &map)
 }
 
 // Use DFS
-void Solution::_maze(mapType &map, int i, int j)
+void MazeGenerator::_maze(mapType &map, int i, int j)
 {
    int direct[][2] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
    int visitOrder[] = {0, 1, 2, 3};
@@ -63,7 +63,7 @@ void Solution::_maze(mapType &map, int i, int j)
    }
 }
 
-int Solution::countVisitedNeighbor(mapType &map, int i, int j)
+int MazeGenerator::countVisitedNeighbor(mapType &map, int i, int j)
 {
    int direct[][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
    int count = 0;
@@ -79,14 +79,15 @@ int Solution::countVisitedNeighbor(mapType &map, int i, int j)
    }
    return count;
 }
-void Solution::shuffle(int a[], int n)
+void MazeGenerator::shuffle(int a[], int n)
 {
+   std::uniform_int_distribution<int> randGen(0, n-1);
    for (int i = 0; i < n; ++i)
    {
-      swap(a[i], a[rand() % n]);
+      swap(a[i], a[randGen(randomEngine)]);
    }
 }
-void Solution::swap(int &a, int &b)
+void MazeGenerator::swap(int &a, int &b)
 {
    int c = a;
    a = b;

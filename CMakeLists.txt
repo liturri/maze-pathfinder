@@ -9,6 +9,7 @@ endif()
 
 # The project name
 project(maze-pathfinder VERSION 0.1.0)
+add_definitions(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 

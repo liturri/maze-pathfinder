@@ -109,8 +109,7 @@ protected:
 void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int heuristic)
 {
    AStar::Generator generator;
-   Solution s;
-   srand(seed);
+   MazeGenerator s(seed);
    std::string heuristicStr = "manhattan";
 
    mapType map{(std::size_t)columns, std::vector<char>((std::size_t)lines, '\0')};
@@ -146,7 +145,7 @@ void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int h
    // Benchmark b;
    // generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1});
    // auto path = generator.getPath();
-   // std::cout << "Size: " << worldSize.x << 'x' << worldSize.y << "  Lenght: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;
+   // std::cout << "Size: " << worldSize.x << 'x' << worldSize.y << "  Length: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;
    Fl_Double_Window *window = new Fl_Double_Window(columns * scaleX + 1, lines * scaleY + 1);
    /* auto *box =  */ new boxx(map, generator, scaleX, scaleY);
 

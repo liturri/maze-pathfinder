@@ -8,6 +8,7 @@
 // #include <algorithm>
 #include <benchmark.hxx>
 #include "seeds.hxx"
+#include <locale>
 
 // std::vector<std::string> split(const std::string &text, char delimiter)
 // {
@@ -27,26 +28,32 @@
 int main()
 {
    Benchmark b;
-   ReadData data;
-   size_t importedItems;
+   MazeSeedsDB seedsDB;
+   std::cerr.imbue(std::locale(""));
+
+   // size_t importedItems;
    {
       auto fileFD = igzstream("/tmp/bench1.gz");
-      data.ImportBinFromFile(fileFD);
+      seedsDB.ImportBinFromFile(fileFD);
    }
    // {
    //    auto fileFD = igzstream("/tmp/bench.gz");
-   //    data.ImportTextFromFile(fileFD);
+   //    seedsDB.ImportTextFromFile(fileFD);
    // }
-   {
-      auto fileFD = std::ifstream("/tmp/bench3");
-      importedItems = data.ImportTextFromFile(fileFD);
-   }
-   if (importedItems > 0)
-   {
-      auto fileFD = ogzstream("/tmp/bench1.gz");
-      data.ExportBinToFile(fileFD);
-   }
-   data.ShowListStatus();
-   data.SumarizeLengths();
+   // {
+   //    auto fileFD = std::ifstream("/tmp/bench2");
+   //    importedItems = seedsDB.ImportTextFromFile(fileFD);
+   // }
+   // {
+   //    auto fileFD = std::ifstream("/tmp/bench3");
+   //    importedItems += seedsDB.ImportTextFromFile(fileFD);
+   // }
+   // if (importedItems > 0)
+   // {
+   //    auto fileFD = ogzstream("/tmp/bench1.gz");
+   //    seedsDB.ExportBinToFile(fileFD);
+   // }
+   // seedsDB.ShowListStatus();
+   seedsDB.SumarizeLengths();
    return 0;
 };

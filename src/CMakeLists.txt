@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(pathfinder-apps)
 
-add_executable(pathfind pf.cc)
+add_executable(pathfind pf.cc seeds.cc)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_link_libraries(pathfind PRIVATE a-star maze benchmark profiler)
+    target_link_libraries(pathfind PRIVATE a-star pthread maze benchmark profiler)
 else()
-    target_link_libraries(pathfind PRIVATE a-star maze benchmark)
+    target_link_libraries(pathfind PRIVATE a-star pthread maze benchmark)
 endif()
 
 

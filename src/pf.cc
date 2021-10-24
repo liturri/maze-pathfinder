@@ -70,9 +70,9 @@ TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic)
 
 void workThread(TypeSeed from, TypeSeed to)
 {
-   console.lock();
-   std::cerr << "Thread: " << std::this_thread::get_id() << " From: " << from << " To: " << to << std::endl;
-   console.unlock();
+   // console.lock();
+   // std::cerr << "Thread: " << std::this_thread::get_id() << " From: " << from << " To: " << to << std::endl;
+   // console.unlock();
    for (TypeSeed s = from; s < to; s++)
    {
       Benchmark b;

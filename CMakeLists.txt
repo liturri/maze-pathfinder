@@ -11,10 +11,11 @@ endif()
 project(maze-pathfinder VERSION 0.1.0)
 add_definitions(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 # set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3 -march=native")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3")
+set(CMAKE_CXX_FLAGS_STATIC "-O2 -Wall -Wextra -Werror ")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Wextra -Werror ")
 set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g3 -Wextra -Wall")
 # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -pg")
 

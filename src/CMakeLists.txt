@@ -5,6 +5,8 @@ add_executable(pathfind pf.cc seeds.cc)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_libraries(pathfind PRIVATE a-star pthread maze benchmark profiler)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Static")
+    target_link_libraries(pathfind PRIVATE a-star maze benchmark -static -lrt -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive)
 else()
     target_link_libraries(pathfind PRIVATE a-star pthread maze benchmark)
 endif()

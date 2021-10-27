@@ -9,6 +9,7 @@
 #include "seeds.hxx"
 #include <thread>
 #include <mutex>
+#include <locale>
 
 std::mutex console;
 
@@ -102,6 +103,7 @@ int main(int argc, char *argv[])
    TypeSeed itemsPerThread = totalCantItems / processorsCount;
    Benchmark b;
 
+   std::cerr.imbue(std::locale(""));
    {
       auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);

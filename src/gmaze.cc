@@ -161,6 +161,10 @@ void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int h
 
 int main(int argc, char **argv)
 {
+   if (argc < 2) {
+      std::cerr << argv[0] << ": [seed] [heuristic]" << std::endl;
+      return 1;
+   }
    int seed = atoi(argv[1]);
    int heuristic = atoi(argv[2]);
    int scaleX = 15;

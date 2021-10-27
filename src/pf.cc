@@ -80,9 +80,9 @@ void workThread(TypeSeed from, TypeSeed to)
       if (lengthsDB.IsEmpty(length))
       {
          lengthsDB.AddItem(length, s);
-         console.lock();
+         std::lock_guard lock(console);
          std::cout << "Len: " << length << " Seed: " << s << std::endl;
-         console.unlock();
+         // console.unlock();
       }
       // lengthsDB.IsEmpty(s, length);
       // std::cerr << "Len: " << length << " Seed: " << s << " Time: " << b.elapsed() << std::endl;

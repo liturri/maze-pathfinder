@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
    TypeSeed itemsPerThread = totalCantItems / processorsCount;
    Benchmark b;
 
-   std::cerr.imbue(std::locale(""));
+   // std::cerr.imbue(std::locale(""));
    {
       auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);

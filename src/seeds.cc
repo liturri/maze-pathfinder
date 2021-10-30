@@ -1,4 +1,5 @@
 #include "seeds.hxx"
+#include <benchmark.hxx>
 
 void MazeSeedsDB::SumarizeLengths()
 {

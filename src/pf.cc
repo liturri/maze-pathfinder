@@ -10,14 +10,33 @@
 #include <thread>
 #include <mutex>
 #include <locale>
+#include "app_config.hxx"
 
 std::mutex console;
 
 MazeLengthsDB lengthsDB;
 
-int lines;
-int columns;
-int heuristic;
+class PathFindAppConfig : public AppConfig
+{
+protected:
+   std::string SeedFileName;
+
+public:
+   PathFindAppConfig(std::string name) : AppConfig(name){};
+   void FillArgumentsList() override
+   {
+      AppConfig::FillArgumentsList();
+      appOptions.add_argument("seeds_file").help("Seeds db filename").required();
+   };
+   void ProcessArguments() override
+   {
+      AppConfig::ProcessArguments();
+      SeedFileName = appOptions.get<std::string>("seeds_file");
+   };
+   std::string GetSeedFilename() { return SeedFileName; };
+};
+
+PathFindAppConfig appConfig("pathfind");
 
 TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic)
 {
@@ -61,23 +80,20 @@ TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic)
    Benchmark b;
    generator.findPath({0, 0}, {columns - 1, lines - 1});
    auto path = generator.getPath();
-   // generator.showMaze();
-   // std::cout << "Heuristic: " << heuristicStr << " Seed: " << seed << " Size: " << columns << 'x' << lines << "  Length: " << path.size() << "  Time: " << std::fixed << std::setprecision(4) << b.elapsed() << std::endl;
-   // for(auto& coordinate : path) {
-   //     std::cout << coordinate.x << " " << coordinate.y << "\n";
-   // }
    return path.size();
 }
 
 void workThread(TypeSeed from, TypeSeed to)
 {
-   // console.lock();
-   // std::cerr << "Thread: " << std::this_thread::get_id() << " From: " << from << " To: " << to << std::endl;
-   // console.unlock();
+   if (appConfig.DebugMode())
+   {
+      std::lock_guard<std::mutex> lock(console);
+      std::cerr << "Thread: " << std::this_thread::get_id() << " From: " << from << " To: " << to << std::endl;
+   }
    for (TypeSeed s = from; s < to; s++)
    {
       Benchmark b;
-      auto length = CreateMaze(s, lines, columns, heuristic);
+      auto length = CreateMaze(s, appConfig.GetLines(), appConfig.GetColumns(), appConfig.GetHeuristic());
       if (lengthsDB.IsEmpty(length))
       {
          lengthsDB.AddItem(length, s);
@@ -92,18 +108,24 @@ void workThread(TypeSeed from, TypeSeed to)
 
 int main(int argc, char *argv[])
 {
-   lengthsDB.DisableDebug();
-   int seed = atoi(argv[2]);
-   std::string seedsFileName = argv[1];
-   lines = 66;
-   columns = 111;
-   heuristic = argc > 3 ? atoi(argv[3]) : 3;
+   appConfig.LoadArguments(argc, argv);
+   if (!appConfig.DebugMode())
+   {
+      lengthsDB.DisableDebug();
+   };
+   TypeSeed seed = appConfig.GetSeed();
+   std::string seedsFileName = appConfig.GetSeedFilename();
    const auto processorsCount = std::thread::hardware_concurrency();
    TypeSeed totalCantItems = 100000;
    TypeSeed itemsPerThread = totalCantItems / processorsCount;
+
+   if (appConfig.DebugMode())
+   {
+      std::cerr << "Seed: " << appConfig.GetSeed() << " Cols*Lines: " << appConfig.GetColumns() << '*' << appConfig.GetLines() << std::endl;
+   }
    Benchmark b;
 
-   // std::cerr.imbue(std::locale(""));
+   std::cerr.imbue(std::locale("es_AR.UTF-8"));
    {
       auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);

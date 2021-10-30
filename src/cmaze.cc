@@ -2,12 +2,16 @@
 #include <random>
 #include <ctime>
 #include "maze.hxx"
+#include "app_config.hxx"
 
-int main(int /*argc*/, char const * /*argv*/[])
+AppConfig appConfig("pathfind");
+
+int main(int argc, char *argv[])
 {
-   MazeGenerator s(time(0));
-   int height = 111;
-   int width = 66;
+   appConfig.LoadArguments(argc, argv);
+   MazeGenerator s(appConfig.GetSeed());
+   int height = appConfig.GetLines();
+   int width = appConfig.GetColumns();
    mapType map{(std::size_t)height, std::vector<char>((std::size_t)width, '\0')};
    s.maze(map);
    s.showMaze(map);

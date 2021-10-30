@@ -2,17 +2,9 @@
 #define __SEEDS_HXX__
 #include <vector>
 #include <iostream>
-#include "benchmark.hxx"
-
 
 using TypeLength = int; //short;
 using TypeSeed   = int;
-
-// struct SeedLength
-// {
-//    TypeSeed seed;
-//    TypeLength length;
-// };
 
 class MazeSeedsDB
 {

@@ -9,11 +9,43 @@
 #include <iomanip>
 #include <cassert>
 #include <thread>
+#include "app_config.hxx"
+
+class GMazeAppConfig : public AppConfig
+{
+protected:
+   int sizeX;
+   int sizeY;
+   bool animated;
+
+public:
+   GMazeAppConfig(std::string name) : AppConfig(name){};
+   void FillArgumentsList() override
+   {
+      AppConfig::FillArgumentsList();
+      appOptions.add_argument("-x", "--sizex").help("Number of pixels per column").default_value(10).scan<'i', int>();
+      appOptions.add_argument("-y", "--sizey").help("Number of pixels per line").default_value(10).scan<'i', int>();
+      appOptions.add_argument("-a", "--animated").help("Animated display").default_value(false).implicit_value(true);
+   };
+   void ProcessArguments() override
+   {
+      AppConfig::ProcessArguments();
+      sizeX = appOptions.get<int>("--sizex");
+      sizeY = appOptions.get<int>("--sizey");
+      animated = appOptions.get<bool>("--animated");
+   };
+   bool GetAnimated() { return animated; };
+   int GetSizeX() { return sizeX; };
+   int GetSizeY() { return sizeY; };
+};
+
+GMazeAppConfig appConfig("gmaze");
 
 class boxx : public Fl_Box
 {
 public:
-   boxx(const mapType &_map, AStar::Generator &_generator, int _sizeX, int _sizeY) : Fl_Box(0, 0, 800, 800), map(_map), generator(_generator), sizeX(_sizeX), sizeY(_sizeY) {}
+   boxx(const mapType &_map, AStar::Generator &_generator, int _sizeX, int _sizeY)
+       : Fl_Box(0, 0, 800, 800), map(_map), generator(_generator), sizeX(_sizeX), sizeY(_sizeY) {}
 
    void draw()
    {
@@ -91,9 +123,17 @@ public:
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       std::cout << "Work start." << std::endl;
       auto worldSize = generator.getWorldSize();
-      refresh fun(generator, widget);
-      generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1}, fun);
-      std::cout << "Work end." << std::endl;
+      Benchmark b;
+      if (appConfig.GetAnimated())
+      {
+         refresh fun(generator, widget);
+         generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1}, fun);
+      }
+      else
+      {
+         generator.findPath({0, 0}, {worldSize.x - 1, worldSize.y - 1});
+      }
+      std::cout << "Work end: " << b.elapsed() << " Steps: " << generator.getPath().size() << std::endl;
       Fl::lock();
       widget->redraw();
       Fl::check();
@@ -161,18 +201,16 @@ void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int h
 
 int main(int argc, char **argv)
 {
-   if (argc < 2) {
-      std::cerr << argv[0] << ": [seed] [heuristic]" << std::endl;
-      return 1;
-   }
-   int seed = atoi(argv[1]);
-   int heuristic = atoi(argv[2]);
-   int scaleX = 15;
-   int scaleY = 15;
-   int columns = 1670 / scaleX;
-   int lines = 1000 / scaleY;
+   appConfig.LoadArguments(argc, argv);
+   // int seed = atoi(argv[1]);
+   // int heuristic = atoi(argv[2]);
+   // int scaleX = 10;
+   // int scaleY = 10;
+   // int columns = 111 /* 1670 / scaleX */;
+   // int lines = 66 /* 1000 / scaleY */;
 
-   ResolveMaze(seed, lines, columns, scaleX, scaleY, heuristic);
+   ResolveMaze(appConfig.GetSeed(), appConfig.GetLines(), appConfig.GetColumns(), appConfig.GetSizeX(), appConfig.GetSizeY(),
+               appConfig.GetHeuristic());
 
    return 0;
 }

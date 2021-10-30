@@ -20,6 +20,7 @@ class PathFindAppConfig : public AppConfig
 {
 protected:
    std::string SeedFileName;
+   TypeSeed countOfItems;
 
 public:
    PathFindAppConfig(std::string name) : AppConfig(name){};
@@ -27,13 +28,16 @@ public:
    {
       AppConfig::FillArgumentsList(appOptions);
       appOptions.add_argument("seeds_file").help("Seeds db filename").required();
+      appOptions.add_argument("--count").help("Number of iterations to calculate").default_value(10000).scan<'i',long>();
    };
    void ProcessArguments(argparse::ArgumentParser &appOptions) override
    {
       AppConfig::ProcessArguments(appOptions);
       SeedFileName = appOptions.get<std::string>("seeds_file");
+      countOfItems = appOptions.get<long>("--count");
    };
    std::string GetSeedFilename() { return SeedFileName; };
+   TypeSeed GetCountOfItems() { return countOfItems; };
 };
 
 PathFindAppConfig appConfig("pathfind");
@@ -99,7 +103,6 @@ void workThread(TypeSeed from, TypeSeed to)
          lengthsDB.AddItem(length, s);
          std::lock_guard lock(console);
          std::cout << "Len: " << length << " Seed: " << s << std::endl;
-         // console.unlock();
       }
       // lengthsDB.IsEmpty(s, length);
       // std::cerr << "Len: " << length << " Seed: " << s << " Time: " << b.elapsed() << std::endl;
@@ -116,7 +119,7 @@ int main(int argc, char *argv[])
    TypeSeed seed = appConfig.GetSeed();
    std::string seedsFileName = appConfig.GetSeedFilename();
    const auto processorsCount = std::thread::hardware_concurrency();
-   TypeSeed totalCantItems = 100000;
+   TypeSeed totalCantItems = appConfig.GetCountOfItems();
    TypeSeed itemsPerThread = totalCantItems / processorsCount;
 
    if (appConfig.DebugMode())

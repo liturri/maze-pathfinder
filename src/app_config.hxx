@@ -15,15 +15,14 @@ protected:
    bool debugMode;
 
    std::string appName;
-   argparse::ArgumentParser appOptions;
 
 public:
    bool DebugMode() const { return debugMode; };
-   AppConfig(std::string _appName) : appName(_appName), appOptions(_appName){};
+   AppConfig(std::string _appName) : appName(_appName){};
    void LoadArguments(int argc, char *argv[]);
 
-   virtual void FillArgumentsList();
-   virtual void ProcessArguments();
+   virtual void FillArgumentsList(argparse::ArgumentParser &appOptions);
+   virtual void ProcessArguments(argparse::ArgumentParser &appOptions);
 
    int GetLines() { return lines; };
    int GetColumns() { return columns; };

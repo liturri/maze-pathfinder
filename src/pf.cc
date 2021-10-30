@@ -23,14 +23,14 @@ protected:
 
 public:
    PathFindAppConfig(std::string name) : AppConfig(name){};
-   void FillArgumentsList() override
+   void FillArgumentsList(argparse::ArgumentParser &appOptions) override
    {
-      AppConfig::FillArgumentsList();
+      AppConfig::FillArgumentsList(appOptions);
       appOptions.add_argument("seeds_file").help("Seeds db filename").required();
    };
-   void ProcessArguments() override
+   void ProcessArguments(argparse::ArgumentParser &appOptions) override
    {
-      AppConfig::ProcessArguments();
+      AppConfig::ProcessArguments(appOptions);
       SeedFileName = appOptions.get<std::string>("seeds_file");
    };
    std::string GetSeedFilename() { return SeedFileName; };

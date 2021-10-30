@@ -4,7 +4,7 @@
 #include <iostream>
 
 using TypeLength = int; //short;
-using TypeSeed   = int;
+using TypeSeed   = long;
 
 class MazeSeedsDB
 {

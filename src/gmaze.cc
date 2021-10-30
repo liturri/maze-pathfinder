@@ -20,16 +20,16 @@ protected:
 
 public:
    GMazeAppConfig(std::string name) : AppConfig(name){};
-   void FillArgumentsList() override
+   void FillArgumentsList(argparse::ArgumentParser &appOptions) override
    {
-      AppConfig::FillArgumentsList();
+      AppConfig::FillArgumentsList(appOptions);
       appOptions.add_argument("-x", "--sizex").help("Number of pixels per column").default_value(10).scan<'i', int>();
       appOptions.add_argument("-y", "--sizey").help("Number of pixels per line").default_value(10).scan<'i', int>();
       appOptions.add_argument("-a", "--animated").help("Animated display").default_value(false).implicit_value(true);
    };
-   void ProcessArguments() override
+   void ProcessArguments(argparse::ArgumentParser &appOptions) override
    {
-      AppConfig::ProcessArguments();
+      AppConfig::ProcessArguments(appOptions);
       sizeX = appOptions.get<int>("--sizex");
       sizeY = appOptions.get<int>("--sizey");
       animated = appOptions.get<bool>("--animated");

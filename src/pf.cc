@@ -28,7 +28,7 @@ public:
    {
       AppConfig::FillArgumentsList(appOptions);
       appOptions.add_argument("seeds_file").help("Seeds db filename").required();
-      appOptions.add_argument("--count").help("Number of iterations to calculate").default_value(10000).scan<'i',long>();
+      appOptions.add_argument("--count").help("Number of iterations to calculate").default_value(10000).scan<'i', long>();
    };
    void ProcessArguments(argparse::ArgumentParser &appOptions) override
    {
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
    }
    Benchmark b;
 
-   std::cerr.imbue(std::locale("es_AR.UTF-8"));
+   // std::cerr.imbue(std::locale("es_AR.UTF-8"));
    {
       auto fileFD = std::ifstream(seedsFileName);
       lengthsDB.ImportTextFromFile(fileFD);
@@ -151,7 +151,8 @@ int main(int argc, char *argv[])
          th.join();
    }
    console.lock();
-   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << "  time: " << b.elapsed() << std::endl;
+   auto t = b.elapsed();
+   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << "  time: " << t << " Items: " << totalCantItems / t << std::endl;
    console.unlock();
    {
       auto fileFD = std::ifstream(seedsFileName);

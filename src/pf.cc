@@ -152,7 +152,8 @@ int main(int argc, char *argv[])
    }
    console.lock();
    auto t = b.elapsed();
-   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << "  time: " << t << " Items: " << totalCantItems / t << std::endl;
+   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << " CPUs: " << processorsCount << " time: " << t
+             << " Items p/sec: " << totalCantItems / t << " p/cpu: " << totalCantItems / t / processorsCount << std::endl;
    console.unlock();
    {
       auto fileFD = std::ifstream(seedsFileName);

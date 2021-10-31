@@ -15,6 +15,7 @@ add_definitions(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
 
 # set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Werror -g3 -march=native")
 set(CMAKE_CXX_FLAGS_STATIC "-O2 -Wall -Wextra -Werror ")
+set(CMAKE_CXX_FLAGS_PROFILE "-O0 -Wall -Wextra -Werror -pg")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -Wextra -Werror ")
 set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g3 -Wextra -Wall")
 # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -pg")

@@ -5,11 +5,11 @@
 void MazeGenerator::maze(mapType &map)
 {
    // U unvisited, ' ' visited
-   for (std::size_t i = 0; i < map.size(); ++i)
+   for (std::size_t x = 0; x < map.size(); ++x)
    {
-      for (std::size_t j = 0; j < map[0].size(); ++j)
+      for (std::size_t y = 0; y < map[0].size(); ++y)
       {
-         map[i][j] = '*';
+         map[x][y] = '*';
       }
    }
    _maze(map, 0, 0);
@@ -31,60 +31,60 @@ void MazeGenerator::showMaze(mapType &map)
 }
 
 // Use DFS
-void MazeGenerator::_maze(mapType &map, int i, int j)
+void MazeGenerator::_maze(mapType &map, int x, int y)
 {
    int direct[][2] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
    int visitOrder[] = {0, 1, 2, 3};
    // out of boundary
-   if (i < 0 || j < 0 || i >= (long)map.size() || j >= (long)map[0].size())
+   if (x < 0 || y < 0 || x >= (long)map.size() || y >= (long)map[0].size())
       return;
 #ifdef DEBUG
-   std::cout << "(" << i << ", " << j << ")" << endl;
+   std::cout << "(" << x << ", " << y << ")" << endl;
 #endif
    // visited, go back to the coming direction, return
-   if (map[i][j] == ' ')
+   if (map[x][y] == ' ')
       return;
 
    // some neightbors are visited in addition to the coming direction, return
    // this is to avoid circles in maze
-   if (countVisitedNeighbor(map, i, j) > 1)
+   if (countVisitedNeighbor(map, x, y) > 1)
       return;
 
-   map[i][j] = ' '; // visited
+   map[x][y] = ' '; // visited
 
    // shuffle the visitOrder
    shuffle(visitOrder, 4);
 
    for (int k = 0; k < 4; ++k)
    {
-      int ni = i + direct[visitOrder[k]][0];
-      int nj = j + direct[visitOrder[k]][1];
-      _maze(map, ni, nj);
+      int nx = x + direct[visitOrder[k]][0];
+      int ny = y + direct[visitOrder[k]][1];
+      _maze(map, nx, ny);
    }
 }
 
-int MazeGenerator::countVisitedNeighbor(mapType &map, int i, int j)
+int MazeGenerator::countVisitedNeighbor(mapType &map, int x, int y)
 {
    int direct[][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
    int count = 0;
    for (int k = 0; k < 4; ++k)
    {
-      int ni = i + direct[k][0];
-      int nj = j + direct[k][1];
+      int nx = x + direct[k][0];
+      int ny = y + direct[k][1];
       // out of boundary
-      if (ni < 0 || nj < 0 || ni >= (long)map.size() || nj >= (long)map[0].size())
+      if (nx < 0 || ny < 0 || nx >= (long)map.size() || ny >= (long)map[0].size())
          continue;
-      if (map[ni][nj] == ' ')
+      if (map[nx][ny] == ' ')
          count++; // visited
    }
    return count;
 }
 void MazeGenerator::shuffle(int a[], int n)
 {
-   std::uniform_int_distribution<int> randGen(0, n-1);
-   for (int i = 0; i < n; ++i)
+   std::uniform_int_distribution<int> randGen(0, n - 1);
+   for (int x = 0; x < n; ++x)
    {
-      swap(a[i], a[randGen(randomEngine)]);
+      swap(a[x], a[randGen(randomEngine)]);
    }
 }
 void MazeGenerator::swap(int &a, int &b)

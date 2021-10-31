@@ -15,8 +15,8 @@ public:
    void maze(mapType &map);
    void showMaze(mapType &map);
 
-   void _maze(mapType &map, int i, int j);
-   int countVisitedNeighbor(mapType &map, int i, int j);
+   void _maze(mapType &map, int x, int y);
+   int countVisitedNeighbor(mapType &map, int x, int y);
    void shuffle(int a[], int n);
    void swap(int &a, int &b);
 };

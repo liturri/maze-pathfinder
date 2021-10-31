@@ -28,13 +28,16 @@ public:
    {
       AppConfig::FillArgumentsList(appOptions);
       appOptions.add_argument("seeds_file").help("Seeds db filename").required();
-      appOptions.add_argument("--count").help("Number of iterations to calculate").default_value(10000).scan<'i', long>();
+      appOptions.add_argument("--count").help("Number of iterations to calculate").default_value(100);
    };
    void ProcessArguments(argparse::ArgumentParser &appOptions) override
    {
       AppConfig::ProcessArguments(appOptions);
       SeedFileName = appOptions.get<std::string>("seeds_file");
-      countOfItems = appOptions.get<long>("--count");
+      if (appOptions.is_used("--count"))
+         countOfItems = appOptions.get<int>("--count");
+      else
+         countOfItems = 100000;
    };
    std::string GetSeedFilename() { return SeedFileName; };
    TypeSeed GetCountOfItems() { return countOfItems; };

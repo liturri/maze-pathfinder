@@ -153,7 +153,8 @@ void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int h
    std::string heuristicStr = "manhattan";
 
    mapType map{(std::size_t)columns, std::vector<char>((std::size_t)lines, '\0')};
-   s.maze(map);
+   // s.MazeDepthFirstSearch(map);
+   s.MazeRecursive(map);
 
    generator.setWorldSize({columns, lines});
    switch (heuristic)

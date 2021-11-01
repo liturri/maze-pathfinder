@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
    int height = appConfig.GetLines();
    int width = appConfig.GetColumns();
    mapType map{(std::size_t)width, std::vector<char>((std::size_t)height, '\0')};
-   s.maze(map);
+   s.MazeDepthFirstSearch(map);
+   // s.MazeRecursive(map);
    s.showMaze(map);
    return 0;
 }

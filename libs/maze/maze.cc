@@ -2,30 +2,6 @@
 #include "maze.hxx"
 #include <iostream>
 
-void MazeGenerator::MazeDepthFirstSearch(mapType &map)
-{
-   for (std::size_t x = 0; x < map.size(); ++x)
-   {
-      for (std::size_t y = 0; y < map[0].size(); ++y)
-      {
-         map[x][y] = charWall;
-      }
-   }
-   _MazeDepthFirstSearch(map, 0, 0);
-}
-
-void MazeGenerator::MazeRecursive(mapType &map)
-{
-   for (std::size_t x = 0; x < map.size(); ++x)
-   {
-      for (std::size_t y = 0; y < map[0].size(); ++y)
-      {
-         map[x][y] = charWall;
-      }
-   }
-   _MazeRecursive(map, 0, 0);
-}
-
 void MazeGenerator::showMaze(mapType &map)
 {
    std::cout << "+" << std::string(map.size(), '-') << "+" << std::endl;
@@ -42,7 +18,7 @@ void MazeGenerator::showMaze(mapType &map)
 }
 
 // Use DFS
-void MazeGenerator::_MazeDepthFirstSearch(mapType &map, int x, int y)
+void MazeGenDepthFirsSearch::Generate(mapType &map, int x, int y)
 {
    int direct[][2] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
    int visitOrder[] = {0, 1, 2, 3};
@@ -53,7 +29,7 @@ void MazeGenerator::_MazeDepthFirstSearch(mapType &map, int x, int y)
    std::cout << "(" << x << ", " << y << ")" << endl;
 #endif
    // visited, go back to the coming direction, return
-   if (map[x][y] == charEmpty)
+   if (map[x][y] == MazeGenerator::charEmpty)
       return;
 
    // some neightbors are visited in addition to the coming direction, return
@@ -61,7 +37,7 @@ void MazeGenerator::_MazeDepthFirstSearch(mapType &map, int x, int y)
    if (countVisitedNeighbor(map, x, y) > 1)
       return;
 
-   map[x][y] = charEmpty; // visited
+   map[x][y] = MazeGenerator::charEmpty; // visited
 
    // shuffle the visitOrder
    shuffle(visitOrder, 4);
@@ -70,11 +46,11 @@ void MazeGenerator::_MazeDepthFirstSearch(mapType &map, int x, int y)
    {
       int nx = x + direct[visitOrder[k]][0];
       int ny = y + direct[visitOrder[k]][1];
-      _MazeDepthFirstSearch(map, nx, ny);
+      Generate(map, nx, ny);
    }
 }
 
-int MazeGenerator::countVisitedNeighbor(mapType &map, int x, int y)
+int MazeGenDepthFirsSearch::countVisitedNeighbor(mapType &map, int x, int y)
 {
    int direct[][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
    int count = 0;
@@ -85,12 +61,13 @@ int MazeGenerator::countVisitedNeighbor(mapType &map, int x, int y)
       // out of boundary
       if (nx < 0 || ny < 0 || nx >= (long)map.size() || ny >= (long)map[0].size())
          continue;
-      if (map[nx][ny] == charEmpty)
+      if (map[nx][ny] == MazeGenerator::charEmpty)
          count++; // visited
    }
    return count;
 }
-void MazeGenerator::shuffle(int a[], int n)
+
+void MazeGenDepthFirsSearch::shuffle(int a[], int n)
 {
    std::uniform_int_distribution<int> randGen(0, n - 1);
    for (int x = 0; x < n; ++x)
@@ -99,12 +76,12 @@ void MazeGenerator::shuffle(int a[], int n)
    }
 }
 
-void MazeGenerator::_MazeRecursive(mapType &map, int x, int y)
+void MazeGenRecursive::Generate(mapType &map, int x, int y)
 {
    // Starting at the given index, recursively visits every direction in a
    // randomized order.
    // Set my current location to be an empty passage.
-   map[x][y] = charEmpty;
+   map[x][y] = MazeGenerator::charEmpty;
    // Create an local array containing the 4 directions and shuffle their order.
    int dirs[4];
    dirs[0] = NORTH;
@@ -148,14 +125,25 @@ void MazeGenerator::_MazeRecursive(mapType &map, int x, int y)
 
       if ((x2 >= 0 && x2 <= (long)map.size()) && (y2 >= 0 && y2 <= (long)map[0].size()))
       {
-         if (map[x2][y2] == charWall)
+         if (map[x2][y2] == MazeGenerator::charWall)
          {
             // (x2,y2) has not been visited yet... knock down the
             // wall between my current position and that position
-            map[x2 - dx][y2 - dy] = charEmpty;
+            map[x2 - dx][y2 - dy] = MazeGenerator::charEmpty;
             // Recursively MazeRecursive (x2,y2)
-            _MazeRecursive(map, x2, y2);
+            Generate(map, x2, y2);
          }
       }
    }
 }
+
+void MazeGenBase::CleanMaze(mapType &map)
+{
+   for (std::size_t x = 0; x < map.size(); ++x)
+   {
+      for (std::size_t y = 0; y < map[0].size(); ++y)
+      {
+         map[x][y] = MazeGenerator::charWall;
+      }
+   }
+};

@@ -149,12 +149,13 @@ protected:
 void ResolveMaze(int seed, int lines, int columns, int scaleX, int scaleY, int heuristic)
 {
    AStar::Generator generator;
-   MazeGenerator s(seed);
+   MazeGenRecursive gen(seed);
+   MazeGenerator s(gen);
    std::string heuristicStr = "manhattan";
 
    mapType map{(std::size_t)columns, std::vector<char>((std::size_t)lines, '\0')};
    // s.MazeDepthFirstSearch(map);
-   s.MazeRecursive(map);
+   s.Generate(map);
 
    generator.setWorldSize({columns, lines});
    switch (heuristic)

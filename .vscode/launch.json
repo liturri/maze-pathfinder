@@ -70,7 +70,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/cmaze",
-            "args": [],
+            "args": ["-c", "10","-l", "10"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/",
             "environment": [],

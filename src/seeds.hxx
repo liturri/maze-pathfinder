@@ -1,10 +1,10 @@
 #ifndef __SEEDS_HXX__
 #define __SEEDS_HXX__
-#include <vector>
 #include <iostream>
+#include <vector>
 
-using TypeLength = int; //short;
-using TypeSeed   = long;
+using TypeLength = int; // short;
+using TypeSeed = long;
 
 class MazeSeedsDB
 {
@@ -12,7 +12,6 @@ private:
     std::vector<TypeSeed> listOfSeeds;
 
 public:
-
     void SumarizeLengths();
     void ShowListStatus();
     void ExportLengthSeed();
@@ -21,9 +20,7 @@ public:
 
     size_t ImportTextFromFile(std::istream &fileFD);
     size_t ImportBinFromFile(std::istream &fileFD);
-
 };
-
 
 class MazeLengthsDB
 {
@@ -35,8 +32,8 @@ public:
     void ExportTextToFile(std::ostream &fileFD);
     size_t ImportTextFromFile(std::istream &fileFD);
 
-    bool IsEmpty(TypeLength length) const { return listOfLengths.size() < (size_t)length+1 || listOfLengths[length] == -1; };
+    bool IsEmpty(TypeLength length) const { return listOfLengths.size() < (size_t)length + 1 || listOfLengths[length] == -1; };
     void AddItem(TypeLength length, TypeSeed seed);
-    void DisableDebug() { printTimming = false;};
+    void DisableDebug() { printTimming = false; };
 };
 #endif

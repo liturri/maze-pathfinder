@@ -1,10 +1,10 @@
-#include <chrono>
-#include <thread>
 #include "AStar.hxx"
-#include <iostream>
 #include <algorithm>
-#include <cmath>
 #include <cassert>
+#include <chrono>
+#include <cmath>
+#include <iostream>
+#include <thread>
 
 using namespace std::placeholders;
 

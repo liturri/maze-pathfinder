@@ -1,16 +1,16 @@
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <vector>
-#include <cstdlib>
-#include <benchmark.hxx>
 #include "AStar.hxx"
+#include "app_config.hxx"
 #include "maze.hxx"
 #include "seeds.hxx"
-#include <thread>
-#include <mutex>
+#include <benchmark.hxx>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <locale>
-#include "app_config.hxx"
+#include <mutex>
+#include <thread>
+#include <vector>
 
 std::mutex console;
 
@@ -43,7 +43,66 @@ public:
    TypeSeed GetCountOfItems() { return countOfItems; };
 };
 
+TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic);
+void workThread(TypeSeed from, TypeSeed to);
+
 PathFindAppConfig appConfig("pathfind");
+
+int main(int argc, char *argv[])
+{
+   appConfig.LoadArguments(argc, argv);
+   if (!appConfig.DebugMode())
+   {
+      lengthsDB.DisableDebug();
+   };
+   TypeSeed seed = appConfig.GetSeed();
+   std::string seedsFileName = appConfig.GetSeedFilename();
+   const auto processorsCount = std::thread::hardware_concurrency();
+   TypeSeed totalCantItems = appConfig.GetCountOfItems();
+   TypeSeed itemsPerThread = totalCantItems / processorsCount;
+
+   if (appConfig.DebugMode())
+   {
+      std::cerr << "Seed: " << appConfig.GetSeed() << " Cols*Lines: " << appConfig.GetColumns() << '*' << appConfig.GetLines() << std::endl;
+   }
+   Benchmark b;
+
+   // std::cerr.imbue(std::locale("es_AR.UTF-8"));
+   {
+      auto fileFD = std::ifstream(seedsFileName);
+      lengthsDB.ImportTextFromFile(fileFD);
+   }
+
+   std::vector<std::thread> threadList;
+
+   for (unsigned int threadNumber = 0; threadNumber < processorsCount - 1; threadNumber++)
+   {
+      std::thread th = std::thread(workThread, seed + itemsPerThread * threadNumber, seed + itemsPerThread * (threadNumber + 1));
+      threadList.push_back(std::move(th));
+   }
+   std::thread th = std::thread(workThread, seed + itemsPerThread * (processorsCount - 1), seed + totalCantItems);
+   threadList.push_back(std::move(th));
+
+   for (std::thread &th : threadList)
+   {
+      // If thread Object is Joinable then Join that thread.
+      if (th.joinable())
+         th.join();
+   }
+   console.lock();
+   auto t = b.elapsed();
+   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << " CPUs: " << processorsCount << " time: " << t
+             << " Items p/sec: " << totalCantItems / t << " p/cpu: " << totalCantItems / t / processorsCount << std::endl;
+   console.unlock();
+   {
+      auto fileFD = std::ifstream(seedsFileName);
+      lengthsDB.ImportTextFromFile(fileFD);
+   }
+   {
+      auto fileFD = std::ofstream(seedsFileName);
+      lengthsDB.ExportTextToFile(fileFD);
+   }
+}
 
 TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic)
 {
@@ -110,61 +169,5 @@ void workThread(TypeSeed from, TypeSeed to)
       }
       // lengthsDB.IsEmpty(s, length);
       // std::cerr << "Len: " << length << " Seed: " << s << " Time: " << b.elapsed() << std::endl;
-   }
-}
-
-int main(int argc, char *argv[])
-{
-   appConfig.LoadArguments(argc, argv);
-   if (!appConfig.DebugMode())
-   {
-      lengthsDB.DisableDebug();
-   };
-   TypeSeed seed = appConfig.GetSeed();
-   std::string seedsFileName = appConfig.GetSeedFilename();
-   const auto processorsCount = std::thread::hardware_concurrency();
-   TypeSeed totalCantItems = appConfig.GetCountOfItems();
-   TypeSeed itemsPerThread = totalCantItems / processorsCount;
-
-   if (appConfig.DebugMode())
-   {
-      std::cerr << "Seed: " << appConfig.GetSeed() << " Cols*Lines: " << appConfig.GetColumns() << '*' << appConfig.GetLines() << std::endl;
-   }
-   Benchmark b;
-
-   // std::cerr.imbue(std::locale("es_AR.UTF-8"));
-   {
-      auto fileFD = std::ifstream(seedsFileName);
-      lengthsDB.ImportTextFromFile(fileFD);
-   }
-
-   std::vector<std::thread> threadList;
-
-   for (unsigned int threadNumber = 0; threadNumber < processorsCount - 1; threadNumber++)
-   {
-      std::thread th = std::thread(workThread, seed + itemsPerThread * threadNumber, seed + itemsPerThread * (threadNumber + 1));
-      threadList.push_back(std::move(th));
-   }
-   std::thread th = std::thread(workThread, seed + itemsPerThread * (processorsCount - 1), seed + totalCantItems);
-   threadList.push_back(std::move(th));
-
-   for (std::thread &th : threadList)
-   {
-      // If thread Object is Joinable then Join that thread.
-      if (th.joinable())
-         th.join();
-   }
-   console.lock();
-   auto t = b.elapsed();
-   std::cerr << "Seeds: " << seed << '-' << seed + totalCantItems << " CPUs: " << processorsCount << " time: " << t
-             << " Items p/sec: " << totalCantItems / t << " p/cpu: " << totalCantItems / t / processorsCount << std::endl;
-   console.unlock();
-   {
-      auto fileFD = std::ifstream(seedsFileName);
-      lengthsDB.ImportTextFromFile(fileFD);
-   }
-   {
-      auto fileFD = std::ofstream(seedsFileName);
-      lengthsDB.ExportTextToFile(fileFD);
    }
 }

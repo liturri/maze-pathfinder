@@ -1,15 +1,15 @@
-#include <benchmark.hxx>
 #include "AStar.hxx"
+#include "app_config.hxx"
 #include "maze.hxx"
 #include <FL/Fl.H>
-#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Double_Window.H>
 #include <FL/fl_draw.H>
-#include <iostream>
-#include <iomanip>
+#include <bmark.hxx>
 #include <cassert>
+#include <iomanip>
+#include <iostream>
 #include <thread>
-#include "app_config.hxx"
 
 class GMazeAppConfig : public AppConfig
 {
@@ -123,7 +123,7 @@ public:
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       std::cout << "Work start." << std::endl;
       auto worldSize = generator.getWorldSize();
-      Benchmark b;
+      BMark b;
       if (appConfig.GetAnimated())
       {
          refresh fun(generator, widget);

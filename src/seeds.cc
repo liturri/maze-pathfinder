@@ -1,10 +1,10 @@
 #include "seeds.hxx"
-#include <benchmark.hxx>
+#include <bmark.hxx>
 
 void MazeSeedsDB::SumarizeLengths()
 {
     // std::sort(seedsList.begin(), seedsList.end(), compareLengths);
-    Benchmark b;
+    BMark b;
     std::vector<int> seedsByLen;
     TypeLength length = 0;
     for (TypeSeed seed = 0; (size_t)seed < listOfSeeds.size(); seed++)
@@ -52,7 +52,7 @@ void MazeSeedsDB::SumarizeLengths()
 
 void MazeSeedsDB::ShowListStatus()
 {
-    Benchmark b;
+    BMark b;
 
     int holeStart = -1;
     int holeCount = 0;
@@ -87,7 +87,7 @@ void MazeSeedsDB::ShowListStatus()
 
 void MazeSeedsDB::ExportBinToFile(std::ostream &fileFD)
 {
-    Benchmark b;
+    BMark b;
     size_t seed;
     for (seed = 0; seed < listOfSeeds.size(); seed++)
     {
@@ -98,7 +98,7 @@ void MazeSeedsDB::ExportBinToFile(std::ostream &fileFD)
 
 void MazeSeedsDB::ExportTextToFile(std::ostream &fileFD)
 {
-    Benchmark b;
+    BMark b;
     size_t seed;
     for (seed = 0; seed < listOfSeeds.size(); seed++)
     {
@@ -111,7 +111,7 @@ void MazeSeedsDB::ExportTextToFile(std::ostream &fileFD)
 
 size_t MazeSeedsDB::ImportTextFromFile(std::istream &fileFD)
 {
-    Benchmark b;
+    BMark b;
     TypeSeed seed;
     TypeLength length;
     size_t cant = 0;
@@ -134,7 +134,7 @@ size_t MazeSeedsDB::ImportTextFromFile(std::istream &fileFD)
 
 size_t MazeSeedsDB::ImportBinFromFile(std::istream &fileFD)
 {
-    Benchmark b;
+    BMark b;
     TypeSeed seed = 0;
     TypeLength length;
     size_t cant = 0;
@@ -170,7 +170,7 @@ size_t MazeSeedsDB::ImportBinFromFile(std::istream &fileFD)
 
 size_t MazeLengthsDB::ImportTextFromFile(std::istream &fileFD)
 {
-    Benchmark b;
+    BMark b;
     TypeSeed seed;
     TypeLength length;
     size_t cant = 0;
@@ -194,7 +194,7 @@ size_t MazeLengthsDB::ImportTextFromFile(std::istream &fileFD)
 
 void MazeLengthsDB::ExportTextToFile(std::ostream &fileFD)
 {
-    Benchmark b;
+    BMark b;
     TypeLength length;
     for (length = 0; (size_t)length < listOfLengths.size(); length++)
     {

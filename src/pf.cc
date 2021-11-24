@@ -2,7 +2,7 @@
 #include "app_config.hxx"
 #include "maze.hxx"
 #include "seeds.hxx"
-#include <benchmark.hxx>
+#include <bmark.hxx>
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
    {
       std::cerr << "Seed: " << appConfig.GetSeed() << " Cols*Lines: " << appConfig.GetColumns() << '*' << appConfig.GetLines() << std::endl;
    }
-   Benchmark b;
+   BMark b;
 
    // std::cerr.imbue(std::locale("es_AR.UTF-8"));
    {
@@ -144,7 +144,7 @@ TypeLength CreateMaze(TypeSeed seed, int lines, int columns, int heuristic)
             generator.addCollision({l, c});
       }
    }
-   Benchmark b;
+   BMark b;
    generator.findPath({0, 0}, {columns - 1, lines - 1});
    auto path = generator.getPath();
    return path.size();
@@ -159,7 +159,7 @@ void workThread(TypeSeed from, TypeSeed to)
    }
    for (TypeSeed s = from; s < to; s++)
    {
-      Benchmark b;
+      BMark b;
       auto length = CreateMaze(s, appConfig.GetLines(), appConfig.GetColumns(), appConfig.GetHeuristic());
       if (lengthsDB.IsEmpty(length))
       {

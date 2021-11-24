@@ -6,8 +6,8 @@
 #include <gzstream.h>
 // #include <vector>
 // #include <algorithm>
-#include <benchmark.hxx>
 #include "seeds.hxx"
+#include <bmark.hxx>
 #include <locale>
 
 // std::vector<std::string> split(const std::string &text, char delimiter)
@@ -27,7 +27,7 @@
 
 int main()
 {
-   Benchmark b;
+   BMark b;
    MazeSeedsDB seedsDB;
    std::cerr.imbue(std::locale(""));
 
